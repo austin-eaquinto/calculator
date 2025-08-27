@@ -1,60 +1,63 @@
 using System;
 using System.Drawing;
-using System.Windows.Forms; // enables access to GUI components
+using System.Windows.Forms;
 
-/*
-Things To Understand:
----DISPLAY---
-- display refers to the screen that shows the numbers after they are clicked
-- Dock is used to anchor the screen to the top of the window
-- ReadOnly = true prevents the user from typing in it
-- TextAlign = HorizontalAlignment.Right makes the numbers appear from the right side
-
-- Font("font_name", font_size) brings in the desired font
-- 
-*/
-
-public class MainForm : Form
+public class MainForm : Form        // 
 {
-    private TextBox display;    // acts as the screen for the calculator
-    private TableLayoutPanel buttonGrid;    // creates the grid for the buttons
+    private TextBox display;
+    private TableLayoutPanel buttonGrid;
 
-    public MainForm()       // This is the constructor where you set up the form
+    public MainForm()
     {
-        Text = "Calculator";                        // Window Title
-        Size = new Size(300, 400);                  // Window size (width, height)
+        Text = "Calculator";
+        Size = new Size(300, 400);
         StartPosition = FormStartPosition.CenterScreen;
 
-        /*  */
+        // Main layout container with 2 rows: display and button grid
+        var mainLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            RowCount = 2,
+            ColumnCount = 1,
+            Padding = new Padding(10)
+        };
+
+        // Row 0: fixed height for display
+        mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
+        // Row 1: fills remaining space
+        mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+
+        Controls.Add(mainLayout);
+
+        // Display textbox
         display = new TextBox
         {
-            Dock = DockStyle.Top,                   // anchors the display screen to the top of the window
             Font = new Font("Segoe UI", 20),
             ReadOnly = true,
-            TextAlign = HorizontalAlignment.Right
-        };
-        Controls.Add(display);
-
-        // The grid is created here with 5 rows, 4 columns
-        buttonGrid = new TableLayoutPanel
-        {
-            RowCount = 5,
-            ColumnCount = 4,
+            TextAlign = HorizontalAlignment.Right,
             Dock = DockStyle.Fill
         };
+        mainLayout.Controls.Add(display, 0, 0);
+
+        // Button grid
+        buttonGrid = new TableLayoutPanel
+        {
+            RowCount = 4,
+            ColumnCount = 4,
+            Dock = DockStyle.Fill,
+            Margin = new Padding(0),
+            Padding = new Padding(0)
+        };
 
         for (int i = 0; i < buttonGrid.RowCount; i++)
-        {
             buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100f / buttonGrid.RowCount));
-        }
-        
-        for (int i = 0; i < buttonGrid.RowCount; i++)
-        {
-            buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / buttonGrid.ColumnCount));
-        }
-        Controls.Add(buttonGrid);
 
-        // Displays in the window in this order
+        for (int i = 0; i < buttonGrid.ColumnCount; i++)
+            buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / buttonGrid.ColumnCount));
+
+        mainLayout.Controls.Add(buttonGrid, 0, 1);
+
+        // Button labels
         string[] buttons = {
             "7", "8", "9", "/",
             "4", "5", "6", "*",
@@ -80,7 +83,24 @@ public class MainForm : Form
         var btn = sender as Button;
         string value = btn.Text;
 
-        // We'll add logic here in the next step
-        display.Text += value;
+        switch (value)
+        {
+            case "C":
+                display.Text = "";
+                break;
+            case "=":
+                try
+                {
+                    display.Text = new System.Data.DataTable().Compute(display.Text, null).ToString();
+                }
+                catch
+                {
+                    display.Text = "Error";
+                }
+                break;
+            default:
+                display.Text += value;
+                break;
+        }
     }
 }
