@@ -426,3 +426,11 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# OTHER FILES
+test.txt
+bin/
+obj/
+addition.cs
+IntProblem.cs
+Program.cs
